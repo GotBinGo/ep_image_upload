@@ -8,9 +8,12 @@ var image = {
         documentAttributeManager.removeAttributeOnLine(lineNumber, 'img'); // make the line a task list
     },
     addImage: function (lineNumber, src) {
+        console.log('addi');
         var documentAttributeManager = this.documentAttributeManager;
         src = '<img src="' + src + '">';
+        console.log('bef');
         documentAttributeManager.setAttributeOnLine(lineNumber, 'img', src); // make the line a task list
+        console.log('aft');
     }
 };
 
@@ -32,7 +35,102 @@ exports.postToolbarInit = function (hook_name, context) {
     $('#closeErrorModalButton').on('click', function () {
         $('#imageUploadModalError').hide();
     });
+
+
+
+    context.ace.callWithAce(function (ace) {
+    window.addEventListener("message", receiveMessage, false);
+
+    function receiveMessage(event) {
+        context.ace.callWithAce(function (ace) {
+            var imageLineNr = _handleNewLines(ace);
+            console.log(imageLineNr)
+            // ace.ace_addImage(imageLineNr, 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z/C/HgAGgwJ/lK3Q6wAAAABJRU5ErkJggg==');
+            ace.ace_addImage(imageLineNr, JSON.parse(event.data));
+            ace.ace_doReturnKey();
+        }, 'img', true);
+    }
+
+    
+
+
+
+
+        console.log('ace')
+        var doc = ace.ace_getDocument();
+        var a = $(doc).find('#innerdocbody')
+        console.log(a)
+        a.on("paste", function (event) {
+            
+            console.log(event);
+            // addIm();
+            // setTimeout(function () {
+
+            //     context.ace.callWithAce(function (ace) {
+            //         var imageLineNr = _handleNewLines(ace);
+            //         console.log(imageLineNr)
+            //         ace.ace_addImage(imageLineNr, 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z/C/HgAGgwJ/lK3Q6wAAAABJRU5ErkJggg==');
+            //         ace.ace_doReturnKey();
+            //     }, 'img', true);
+            // }, 1);
+            var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+            console.log(items);
+            console.log(JSON.stringify(items)); // will give you the mime types
+            for (var index in items) {
+                var item = items[index];
+                if (item.kind === 'file') {
+                    var blob = item.getAsFile();
+                    var reader = new FileReader();
+                    reader.onload = function (event) {
+                        var data = reader.result;
+                        console.log(data)
+                        setTimeout(function () {
+                            window.postMessage(JSON.stringify(data), "*");
+                        }, 500);
+                        event.preventDefault();
+                        // context.ace.callWithAce(function (ace) {
+                        //     var imageLineNr = 0; //_handleNewLines(ace);
+                        //     console.log(imageLineNr)
+                        //     ace.ace_addImage(imageLineNr, data);
+                        //     ace.ace_doReturnKey();
+                        // });
+                    }; // data url!
+                    reader.readAsDataURL(blob);
+                }
+            }
+        });
+    }, 'img', true);
+
+
+/*
+
+console.log('onpaste set')
+document.getElementById('innerdocbody').onpaste = function(event){
+  var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+  console.log(JSON.stringify(items)); // will give you the mime types
+  for (index in items) {
+    var item = items[index];
+    if (item.kind === 'file') {
+      var blob = item.getAsFile();
+      var reader = new FileReader();
+      reader.onload = function(event){
+        console.log(event.target.result)}; // data url!
+      reader.readAsDataURL(blob);
+    }
+  }
+}
+*/
+
+
     editbar.registerCommand('addImage', function () {
+context.ace.callWithAce(function (ace) {
+    var imageLineNr = _handleNewLines(ace);
+    console.log(imageLineNr)
+    ace.ace_addImage(imageLineNr, 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z/C/HgAGgwJ/lK3Q6wAAAABJRU5ErkJggg==');
+    ace.ace_doReturnKey();
+}, 'img', true);
+
+        console.log('tomi timo');
         $(document).find('body').find('#imageInput').remove();
         var fileInputHtml = '<input style="width:1px;height:1px;z-index:-10000;" id="imageInput" type="file" />';
         $(document).find('body').append(fileInputHtml);
@@ -62,7 +160,7 @@ exports.postToolbarInit = function (hook_name, context) {
                     var errorMessage = window._('ep_image_upload.error.fileType');
                     $('#imageUploadModalError .error').html(errorMessage);
                     $('#imageUploadModalError').show();
-
+                    
                     return;
                 }
             }
@@ -73,7 +171,7 @@ exports.postToolbarInit = function (hook_name, context) {
                 $('#imageUploadModalError').show();
                 validSize = false;
 
-                return;
+                return;    
             }
             if (clientVars.ep_image_upload.storageType === 'base64') {
                 $('#imageUploadModalLoader').hide();
@@ -82,7 +180,13 @@ exports.postToolbarInit = function (hook_name, context) {
                 reader.onload = function () {
                     var data = reader.result;
                     context.ace.callWithAce(function (ace) {
+                        console.log(data)
+
+
+
                         var imageLineNr = _handleNewLines(ace);
+                        console.log(imageLineNr)
+                        // ace.ace_addImage(imageLineNr, 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z/C/HgAGgwJ/lK3Q6wAAAABJRU5ErkJggg==');
                         ace.ace_addImage(imageLineNr, data);
                         ace.ace_doReturnKey();
                     }, 'img', true);
@@ -152,7 +256,7 @@ exports.aceDomLineProcessLineAttributes = function (name, context) {
 
     if (!imgType) return [];
 
-    var randomId = Math.floor((Math.random() * 100000) + 1);
+    var randomId = Math.floor((Math.random() * 100000) + 1); 
     var template = '<span id="' + randomId + '" class="image">';
     if (imgType[1]) {
         var preHtml = template + imgType[1] + ' >';
@@ -165,7 +269,7 @@ exports.aceDomLineProcessLineAttributes = function (name, context) {
 
         return [modifier];
     }
-
+    
     return [];
 };
 
@@ -192,5 +296,5 @@ exports.collectContentImage = function (name, context) {
 };
 
 exports.aceRegisterBlockElements = function () {
-    return ['img'];
+    return ['img']; 
 };
