@@ -88,12 +88,6 @@ exports.postToolbarInit = function (hook_name, context) {
                             window.postMessage(JSON.stringify(data), "*");
                         }, 500);
                         event.preventDefault();
-                        // context.ace.callWithAce(function (ace) {
-                        //     var imageLineNr = 0; //_handleNewLines(ace);
-                        //     console.log(imageLineNr)
-                        //     ace.ace_addImage(imageLineNr, data);
-                        //     ace.ace_doReturnKey();
-                        // });
                     }; // data url!
                     reader.readAsDataURL(blob);
                 }
