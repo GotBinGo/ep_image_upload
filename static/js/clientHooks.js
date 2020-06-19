@@ -101,27 +101,6 @@ exports.postToolbarInit = function (hook_name, context) {
         });
     }, 'img', true);
 
-
-/*
-
-console.log('onpaste set')
-document.getElementById('innerdocbody').onpaste = function(event){
-  var items = (event.clipboardData || event.originalEvent.clipboardData).items;
-  console.log(JSON.stringify(items)); // will give you the mime types
-  for (index in items) {
-    var item = items[index];
-    if (item.kind === 'file') {
-      var blob = item.getAsFile();
-      var reader = new FileReader();
-      reader.onload = function(event){
-        console.log(event.target.result)}; // data url!
-      reader.readAsDataURL(blob);
-    }
-  }
-}
-*/
-
-
     editbar.registerCommand('addImage', function () {
 context.ace.callWithAce(function (ace) {
     var imageLineNr = _handleNewLines(ace);
